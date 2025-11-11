@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Acompanhar Chamados</title>
+  <style>
+    /* SEU CSS AQUI (mantenha igual) */
+    :root{
+      --bg:#f4f6fb;
+      --card:#ffffff;
+      --muted:#687083;
+      --accent:#2b6cb0;
+      --accent-dark:#1e429f;
+      --success:#16a34a;
+      --danger:#ef4444;
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+
+    *{box-sizing:border-box}
+    body{margin:0;background:linear-gradient(180deg,var(--bg),#eef3fb);color:#0f172a}
+
+    header{
+      padding:24px 28px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+    }
+    .brand{display:flex;align-items:center;gap:12px}
+    .logo{width:46px;height:46px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#4f46e5);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:18px}
+    h1{font-size:18px;margin:0}
+    p.lead{margin:0;color:var(--muted);font-size:13px}
+
+    .controls{display:flex;gap:12px;align-items:center}
+    .search{display:flex;align-items:center;padding:8px 12px;background:var(--card);border-radius:10px;gap:8px;box-shadow:0 3px 8px rgba(15,23,42,0.04)}
+    .search input{border:0;outline:0;font-size:14px;background:transparent;width:220px}
+    .btn{padding:8px 12px;border-radius:10px;border:0;background:var(--accent);color:white;font-weight:600;cursor:pointer;transition:0.2s}
+    .btn:hover{background:var(--accent-dark)}
+
+    main{padding:0 28px 48px}
+
+    .summary{display:flex;gap:18px;margin-bottom:18px;flex-wrap:wrap}
+    .stat{background:var(--card);padding:12px 16px;border-radius:12px;min-width:160px;box-shadow:0 6px 20px rgba(16,24,40,0.04)}
+    .stat strong{display:block;font-size:18px}
+    .stat span{font-size:13px;color:var(--muted)}
+
+    .list{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+    .ticket{background:var(--card);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:10px;box-shadow:0 8px 26px rgba(9,30,66,0.04)}
+    .ticket .row{display:flex;justify-content:space-between;align-items:center}
+    .meta{display:flex;gap:10px;align-items:center}
+    .protocol{font-weight:700}
+    .date{color:var(--muted);font-size:13px}
+    .title{font-weight:600}
+    .desc{color:var(--muted);font-size:13px}
+
+    .badge{padding:6px 8px;border-radius:999px;font-weight:700;font-size:12px}
+    .badge.open{background:rgba(59,130,246,0.08);color:var(--accent)}
+    .badge.closed{background:rgba(16,185,129,0.08);color:var(--success)}
+    .badge.pending{background:rgba(249,115,22,0.08);color:#c2410c}
+
+    /* Formulário de novo chamado */
+    #formContainer{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);backdrop-filter:blur(4px);align-items:center;justify-content:center;z-index:20}
+    form{background:white;padding:24px;border-radius:14px;width:95%;max-width:600px;display:flex;flex-direction:column;gap:14px;box-shadow:0 6px 30px rgba(0,0,0,0.1)}
+    form h2{margin:0;font-size:20px}
+    label{font-weight:600;font-size:14px}
+    input,select,textarea{width:100%;padding:10px;border-radius:8px;border:1px solid #d0d5dd;font-size:14px;outline:0}
+    textarea{resize:vertical;min-height:80px}
+    .form-actions{display:flex;justify-content:space-between;margin-top:8px}
+    .btn.cancelar{background:transparent;color:var(--accent);border:0;font-weight:600;cursor:pointer;text-decoration:underline}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <div>
+        <h1>Acompanhar Chamados</h1>
+        <p class="lead">Acompanhe seus chamados em tempo real</p>
+      </div>
+    </div>
+    <div class="controls">
+      <div class="search"><input id="filterInput" placeholder="Pesquisar..." /></div>
+      <button class="btn" onclick="abrirFormulario()">Abrir chamado</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="summary">
+      <div class="stat"><strong id="totalTickets">0</strong><span>Total</span></div>
+      <div class="stat"><strong id="openTickets">0</strong><span>Aberto</span></div>
+      <div class="stat"><strong id="pendingTickets">0</strong><span>Pendente</span></div>
+      <div class="stat"><strong id="closedTickets">0</strong><span>Fechado</span></div>
+    </section>
+    <section class="list" id="ticketList"></section>
+  </main>
+
+  <!-- Formulário de novo chamado -->
+  <div id="formContainer">
+    <form id="formNovo">
+      <h2>Novo Chamado</h2>
+      
+      <label>Tipo de Problema</label>
+      <select name="tipo" required>
+        <option value="">Selecione uma opção...</option>
+        <!-- As options serão carregadas via JavaScript -->
+      </select>
+      
+      <label>Descrição do Problema</label>
+      <textarea name="descricao" placeholder="Descreva detalhadamente o problema..." required></textarea>
+      
+      <div class="form-actions">
+        <button type="button" class="btn cancelar" onclick="fecharFormulario()">Cancelar</button>
+        <button type="submit" class="btn">Enviar</button>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    // CONSTANTES UNIFICADAS
+const API_TICKETS = "https://localhost:7269/api/Tickets";
+const API_PROBLEMAS = "https://localhost:7269/api/Tickets/problemas"; // Endpoint para problemas
+const idCliente = localStorage.getItem("IdCliente");
+
+console.log("Cliente logado com ID:", idCliente);
+
+// Referências
+const lista = document.getElementById("ticketList");
+const formContainer = document.getElementById("formContainer");
+const form = document.getElementById("formNovo");
+
+// ✅ Carregar tickets do cliente
+async function carregarTickets() {
+    if (!idCliente) {
+        alert("⚠️ Faça login para ver seus chamados.");
+        window.location.href = "/Code/pages/login.html";
+        return;
+    }
+
+    try {
+        const resp = await fetch(`${API_TICKETS}/cliente/${idCliente}`);
+        if (!resp.ok) throw new Error("Erro ao buscar tickets.");
+
+        const tickets = await resp.json();
+        lista.innerHTML = "";
+
+        if (tickets.length === 0) {
+            lista.innerHTML = "<p style='color:#666'>Nenhum ticket encontrado.</p>";
+            return;
+        }
+
+        tickets.forEach(ticket => criarCardTicket(ticket));
+        atualizarContadores(tickets);
+    } catch (err) {
+        console.error(err);
+        lista.innerHTML = "<p style='color:#666'>Erro ao carregar tickets.</p>";
+    }
+}
+
+// ✅ Cria card do ticket
+function criarCardTicket(ticket) {
+    const card = document.createElement("article");
+    card.className = "ticket";
+    const status = (ticket.status || "Aberto").toLowerCase();
+    const data = new Date(ticket.dataCriacao || ticket.DataCriacao)
+        .toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
+
+    card.innerHTML = `
+    <div class="row">
+        <div class="meta">
+        <div class="protocol">Protocolo: ${ticket.idTicket || ticket.IdTicket}</div>
+        <div class="date">${data}</div>
+        </div>
+        <div class="badge ${status}">${ticket.status || "Aberto"}</div>
+    </div>
+    <div>
+        <div class="title">${ticket.titulo || "Sem título"}</div>
+        <div class="desc">${ticket.descricao || "Sem descrição."}</div>
+        <a href="ticket.html?id=${ticket.idTicket}">Ver Detalhes</a>
+    </div>
+    `;
+    lista.prepend(card);
+}
+
+// ✅ Atualiza contadores
+function atualizarContadores(tickets) {
+    const total = tickets.length;
+    const abertos = tickets.filter(t => (t.status || "").toLowerCase() === "aberto").length;
+    const pendentes = tickets.filter(t => (t.status || "").toLowerCase() === "pendente").length;
+    const fechados = tickets.filter(t => (t.status || "").toLowerCase() === "fechado").length;
+
+    document.getElementById("totalTickets").textContent = total;
+    document.getElementById("openTickets").textContent = abertos;
+    document.getElementById("pendingTickets").textContent = pendentes;
+    document.getElementById("closedTickets").textContent = fechados;
+}
+
+// ✅ Abre formulário e carrega problemas
+function abrirFormulario() {
+    formContainer.style.display = "flex";
+    carregarProblemas();
+}
+
+// ✅ Fecha formulário
+function fecharFormulario() {
+    formContainer.style.display = "none";
+}
+
+// ✅ CARREGA PROBLEMAS DO BANCO
+async function carregarProblemas() {
+    try {
+        const resp = await fetch(`${API_TICKETS}/problemas`);
+        if (!resp.ok) throw new Error("Erro ao carregar problemas");
+        
+        const problemas = await resp.json();
+        const select = document.querySelector('select[name="tipo"]');
+        select.innerHTML = '<option value="">Selecione uma opção...</option>';
+        
+        problemas.forEach(p => {
+            const opt = document.createElement("option");
+            opt.value = p.idProblema;
+            opt.textContent = p.titulo;
+            opt.setAttribute('data-solucao', p.solucao || ''); // Armazena a solução
+            select.appendChild(opt);
+        });
+    } catch (error) {
+        console.error("Erro ao carregar problemas:", error);
+        alert("Erro ao carregar tipos de problema");
+    }
+}
+
+// ✅ FUNÇÃO IA - Busca solução do problema
+async function buscarSolucaoProblema(idProblema) {
+    try {
+        const resp = await fetch(`${API_TICKETS}/problemas/${idProblema}`);
+        if (!resp.ok) throw new Error("Erro ao buscar solução");
+        
+        const problema = await resp.json();
+        return problema.solucao || "Nenhuma solução automática disponível para este problema.";
+    } catch (error) {
+        console.error("Erro ao buscar solução:", error);
+        return "Não foi possível carregar a solução automática no momento.";
+    }
+}
+
+// ✅ FUNÇÃO IA - Envia mensagem automática
+async function enviarMensagemAutomatica(idTicket, solucao) {
+    try {
+        const mensagemIA = {
+            IDTicket: parseInt(idTicket),
+            IDCliente: 0, // ID 0 representa o sistema/IA
+            Texto: `🤖 **Resposta Automática:**\n\n${solucao}\n\n*Se esta solução não resolver seu problema, nosso time entrará em contato em breve.*`,
+            EhInterno: false
+        };
+
+        const resp = await fetch("https://localhost:7269/api/Mensagens", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(mensagemIA)
+        });
+
+        if (!resp.ok) throw new Error("Erro ao enviar mensagem automática");
+        
+        console.log("✅ Mensagem automática enviada com sucesso!");
+    } catch (error) {
+        console.error("❌ Erro ao enviar mensagem automática:", error);
+    }
+}
+
+// ✅ Envia novo ticket COM IA
+form.addEventListener("submit", async e => {
+    e.preventDefault();
+    
+    if (!idCliente) {
+        alert("⚠️ Faça login para abrir um chamado.");
+        return;
+    }
+
+    const formData = new FormData(form);
+    const idProblema = formData.get("tipo");
+    const titulo = form.querySelector('select[name="tipo"] option:checked').textContent;
+    const descricao = formData.get("descricao");
+
+    if (!idProblema || !descricao.trim()) {
+        alert("Selecione um problema e escreva uma descrição!");
+        return;
+    }
+
+    // ✅ PAYLOAD do ticket
+    const payload = {
+        idCliente: parseInt(idCliente),
+        idProblema: parseInt(idProblema),
+        idAgente: null,
+        titulo: titulo,
+        descricao: descricao,
+        status: "Aberto",
+        prioridade: "Normal"
+    };
+
+    try {
+        // 1. Cria o ticket
+        const resp = await fetch(API_TICKETS, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        });
+
+        if (!resp.ok) throw new Error(await resp.text());
+        
+        const novoTicket = await resp.json();
+        const idTicket = novoTicket.idTicket || novoTicket.IdTicket;
+        
+        console.log("✅ Ticket criado:", idTicket);
+
+        // 2. Busca a solução do problema
+        const solucao = await buscarSolucaoProblema(idProblema);
+        
+        // 3. Envia mensagem automática com a solução
+        await enviarMensagemAutomatica(idTicket, solucao);
+        
+        alert("✅ Chamado criado com sucesso! Verifique a resposta automática.");
+        form.reset();
+        fecharFormulario();
+        carregarTickets();
+        
+    } catch (err) {
+        alert("❌ Erro ao criar chamado: " + err.message);
+    }
+});
+
+// 🔄 Iniciar carregamento ao abrir a página
+window.addEventListener("DOMContentLoaded", carregarTickets);
+  </script>
+</body>
+</html>

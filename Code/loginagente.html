@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login Agente - Turboom</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: "Inter", sans-serif;
+    }
+    body {
+      background-color: #f8f9fb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .card {
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      width: 380px;
+      padding: 40px 30px;
+      text-align: center;
+    }
+    h2 { 
+      color: #333; 
+      margin-bottom: 25px; 
+    }
+    .subtitle {
+      color: #666;
+      font-size: 14px;
+      margin-bottom: 25px;
+    }
+    .input-group { 
+      margin-bottom: 15px; 
+      text-align: left; 
+    }
+    .input-group label { 
+      display: block; 
+      font-size: 14px; 
+      color: #555; 
+      margin-bottom: 5px; 
+    }
+    .input-group input {
+      width: 100%; 
+      padding: 10px 14px; 
+      border: 1px solid #ccc;
+      border-radius: 10px; 
+      outline: none; 
+      font-size: 15px;
+    }
+    .input-group input:focus {
+      border-color: #6f42c1;
+      box-shadow: 0 0 0 2px rgba(111, 66, 193, 0.15);
+    }
+    button {
+      background: #6f42c1; 
+      color: white; 
+      border: none;
+      width: 100%; 
+      padding: 12px; 
+      border-radius: 10px;
+      font-weight: 600; 
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    button:hover { 
+      background: #5a32a3; 
+    }
+    .back-link {
+      margin-top: 15px; 
+      font-size: 14px; 
+      color: #444;
+    }
+    .back-link a {
+      color: #6f42c1;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .back-link a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>Login Agente</h2>
+    <p class="subtitle">Acesso restrito à equipe de suporte</p>
+
+    <form id="loginForm">
+      <div class="input-group">
+        <label for="email">E-mail</label>
+        <input type="email" id="email" placeholder="Digite seu e-mail corporativo" required>
+      </div>
+      <div class="input-group">
+        <label for="senha">Senha</label>
+        <input type="password" id="senha" placeholder="Digite sua senha" required>
+      </div>
+      <button type="button" onclick="loginAgente()">Entrar como Agente</button>
+    </form>
+
+    <p class="back-link">
+      <a href="login.html">← Voltar para login do cliente</a>
+    </p>
+  </div>
+
+  <script>
+    const API_AGENTES = "https://localhost:7269/api/Agentes";
+
+    // LOGIN DO AGENTE
+    async function loginAgente() {
+      const email = document.querySelector("#email").value;
+      const senha = document.querySelector("#senha").value;
+
+      if (!email || !senha) {
+        alert("Por favor, preencha todos os campos.");
+        return;
+      }
+
+      const payload = { email, senha };
+
+      try {
+        const resp = await fetch(`${API_AGENTES}/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        if (resp.ok) {
+          const data = await resp.json();
+          localStorage.setItem("IdAgente", data.idAgente || data.IdAgente);
+          localStorage.setItem("NomeAgente", data.nome || data.Nome);
+          localStorage.setItem("FuncaoAgente", data.funcao || data.Funcao);
+          
+          alert("✅ Login realizado com sucesso!");
+          window.location.href = "index.html"; // Ajuste o caminho
+        } else {
+          const errorText = await resp.text();
+          alert("❌ " + (errorText || "E-mail ou senha incorretos."));
+        }
+      } catch (error) {
+        console.error("Erro:", error);
+        alert("❌ Erro de conexão. Tente novamente.");
+      }
+    }
+
+    // Enter key support
+    document.getElementById("senha").addEventListener("keypress", function(e) {
+      if (e.key === "Enter") {
+        loginAgente();
+      }
+    });
+  </script>
+</body>
+</html>
