@@ -1,0 +1,43 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36623.8
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Turboom_Dinamic", "Turboom_Dinamic.csproj", "{D3768A91-CCCC-4F07-9149-A1622BE87B62}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Models", "Models", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+	ProjectSection(SolutionItems) = preProject
+		agentes.cs = agentes.cs
+		clientelogin.cs = clientelogin.cs
+		Clienteregister.cs = Clienteregister.cs
+		clientes.cs = clientes.cs
+		funcao.cs = funcao.cs
+		Mensagem.cs = Mensagem.cs
+		problema.cs = problema.cs
+		produto.cs = produto.cs
+		ticket.cs = ticket.cs
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Data", "Data", "{011C2FFD-E242-4672-8532-E794A15F811A}"
+	ProjectSection(SolutionItems) = preProject
+		AppDbContext.cs = AppDbContext.cs
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D3768A91-CCCC-4F07-9149-A1622BE87B62}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D3768A91-CCCC-4F07-9149-A1622BE87B62}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D3768A91-CCCC-4F07-9149-A1622BE87B62}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D3768A91-CCCC-4F07-9149-A1622BE87B62}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {05CB64A4-1867-4A8B-9144-5AAE93EB91D4}
+	EndGlobalSection
+EndGlobal

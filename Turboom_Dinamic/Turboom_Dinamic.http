@@ -1,0 +1,6 @@
+@Turboom_Dinamic_HostAddress = http://localhost:5010
+
+GET {{Turboom_Dinamic_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
