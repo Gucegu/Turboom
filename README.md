@@ -2,7 +2,7 @@
 
 
 
-Um sistema web moderno para gestão e autenticação de usuários e agentes, desenvolvido com HTML, CSS e JavaScript.
+Um sistema web moderno para gestão e autenticação de usuários e agentes, desenvolvido com HTML, CSS, JavaScript e C#.
 
 
 
@@ -37,6 +37,8 @@ Turboom é uma aplicação web que oferece uma interface intuitiva para autentic
 - *CSS3*: Estilização e layout responsivo
 
 - *JavaScript*: Interatividade e funcionalidades dinâmicas
+
+- *C#*: Estrtuturação da WEB API para conexão com o front com o banco de dados
 
 
 
