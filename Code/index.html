@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="Css/global.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Agente</title>
+</head>
+<body>
+    <header>
+        <div class="components-header">
+            <img src="img/bdea2612-c49d-48d1-a2b0-17b0698534b3-removebg-preview.png" style="position: relative; left: 20px;">
+            
+            <!-- ÁREA DO AGENTE LOGADO -->
+            <div class="buttons-header">
+                <button style="background-color: #5a32ea; color: #fff;">
+                    <a>Todos os tickets</a>
+                </button>
+                <button>
+                    <a>Novos Tickets</a>
+                </button>
+                <button>
+                    <a>Concluídos</a>
+                </button>
+                <button>
+                    <a>Finalizado com ia</a>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="wrap" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 1100px; height: 810px;">
+        <div class="title-row">
+            <h1>Todos os tickets</h1>
+            <div class="controls">
+                <label class="search">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="margin-right:8px;opacity:.6">
+                        <path d="M21 21l-4.35-4.35" stroke="#6b7280" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                        <circle cx="11" cy="11" r="6" stroke="#6b7280" stroke-width="1.5"></circle>
+                    </svg>
+                    <input placeholder="Procurar chamado..." />
+                </label>
+                <select class="select" aria-label="Ordenar por">
+                    <option>Mais recentes</option>
+                    <option>Mais antigos</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="table" role="table">
+            <div class="header" role="row">
+                <div class="cell">Nome</div>
+                <div class="cell">Número chamado</div>
+                <div class="cell">Setor</div>
+                <div class="cell">Email</div>
+                <div class="cell">Horário de abertura</div>
+                <div class="cell">Status</div>
+            </div>
+
+            <!-- 🔥 As linhas de tickets serão inseridas aqui pelo JS -->
+            
+            <div class="footer">
+                <!-- Paginação será gerada dinamicamente -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ✅ Importa o script unificado -->
+    <script src="js/ticket.js"></script>
+</body>
+</html>

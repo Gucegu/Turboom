@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login - Turboom</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: "Inter", sans-serif;
+    }
+    body {
+      background-color: #f8f9fb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .card {
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      width: 380px;
+      padding: 40px 30px;
+      text-align: center;
+    }
+    h2 { color: #333; margin-bottom: 25px; }
+    .input-group { margin-bottom: 15px; text-align: left; }
+    .input-group label { display: block; font-size: 14px; color: #555; margin-bottom: 5px; }
+    .input-group input {
+      width: 100%; padding: 10px 14px; border: 1px solid #ccc;
+      border-radius: 10px; outline: none; font-size: 15px;
+    }
+    .input-group input:focus {
+      border-color: #6f42c1;
+      box-shadow: 0 0 0 2px rgba(111, 66, 193, 0.15);
+    }
+    button {
+      background: #6f42c1; color: white; border: none;
+      width: 100%; padding: 12px; border-radius: 10px;
+      font-weight: 600; cursor: pointer;
+    }
+    button:hover { background: #5a32a3; }
+    .toggle { margin-top: 15px; font-size: 14px; color: #444; }
+    .toggle span { color: #6f42c1; font-weight: bold; cursor: pointer; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2 id="titulo">Login</h2>
+
+    <!-- LOGIN -->
+    <form id="loginForm">
+      <div class="input-group">
+        <label for="email">E-mail</label>
+        <input type="email" id="email" placeholder="Digite seu e-mail" required>
+      </div>
+      <div class="input-group">
+        <label for="senha">Senha</label>
+        <input type="password" id="senha" placeholder="Digite sua senha" required>
+      </div>
+      <button type="button" onclick="loginCliente()">Entrar</button>
+      <p class="toggle">Não tem conta? <span id="mostrarCadastro">Cadastre-se</span></p>
+    </form>
+
+    <!-- CADASTRO -->
+    <form id="cadastroForm" class="hidden">
+      <div class="input-group">
+        <label for="nome">Nome</label>
+        <input type="text" id="nome" placeholder="Digite seu nome" required>
+      </div>
+      <div class="input-group">
+        <label for="emailCadastro">E-mail</label>
+        <input type="email" id="emailCadastro" placeholder="Digite seu e-mail" required>
+      </div>
+      <div class="input-group">
+        <label for="senhaCadastro">Senha</label>
+        <input type="password" id="senhaCadastro" placeholder="Digite uma senha" required>
+      </div>
+      <button type="button" onclick="cadastrarCliente()">Cadastrar</button>
+      <p class="toggle">Já tem conta? <span id="mostrarLogin">Entrar</span></p>
+    </form>
+  </div>
+
+  <script>
+    const API_URL = "https://localhost:7269/api/clientes";
+
+    // alternar formulários
+    const loginForm = document.getElementById("loginForm");
+    const cadastroForm = document.getElementById("cadastroForm");
+    const titulo = document.getElementById("titulo");
+
+    document.getElementById("mostrarCadastro").onclick = () => {
+      loginForm.classList.add("hidden");
+      cadastroForm.classList.remove("hidden");
+      titulo.textContent = "Cadastro";
+    };
+
+    document.getElementById("mostrarLogin").onclick = () => {
+      cadastroForm.classList.add("hidden");
+      loginForm.classList.remove("hidden");
+      titulo.textContent = "Login";
+    };
+
+    // CADASTRO
+    async function cadastrarCliente() {
+      const nome = document.querySelector("#nome").value;
+      const email = document.querySelector("#emailCadastro").value;
+      const senha = document.querySelector("#senhaCadastro").value;
+
+      const payload = { nome, email, senha };
+
+      const resp = await fetch(`${API_URL}/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      if (resp.ok) {
+        alert("✅ Cadastro realizado com sucesso!");
+        // volta para login
+        cadastroForm.classList.add("hidden");
+        loginForm.classList.remove("hidden");
+        titulo.textContent = "Login";
+      } else {
+        const text = await resp.text();
+        alert("❌ Erro: " + text);
+      }
+    }
+
+    // LOGIN
+    async function loginCliente() {
+      const email = document.querySelector("#email").value;
+      const senha = document.querySelector("#senha").value;
+
+      const payload = { email, senha };
+
+      const resp = await fetch(`${API_URL}/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      if (resp.ok) {
+  const data = await resp.json();
+  localStorage.setItem("IdCliente", data.IdCliente || data.idCliente);
+  localStorage.setItem("NomeCliente", data.Nome || data.nome);
+  window.location.href = "/Code/pages/clientetkt.html";
+      } else {
+        const text = await resp.text();
+        alert("❌ " + (text || "E-mail ou senha incorretos."));
+      }
+    }
+  </script>
+</body>
+</html>
